@@ -1,6 +1,7 @@
 package hello;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jms.core.JmsTemplate;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -18,8 +19,11 @@ public class GreetingController {
     @Autowired
     private SimpMessagingTemplate template;
 
+    @Autowired
+    private JmsTemplate jmsTemplate;
+
     @MessageMapping("/hello")
-    @SendTo("/topic/greetings")
+    @SendTo("/user/topic/greetings")
     public Greeting greeting(HelloMessage message) throws Exception {
         Thread.sleep(500); // simulated delay
         return new Greeting("Hello, " + HtmlUtils.htmlEscape(message.getName()) + "!");
@@ -29,7 +33,9 @@ public class GreetingController {
     @ResponseBody
     public String print(@PathVariable("name") String name, Principal principal){
         Greeting greeting = new Greeting("Hello, " + HtmlUtils.htmlEscape(name) + "!");
-        template.convertAndSendToUser(principal.getName(), "/topic/greetings", greeting);
+        //template.convertAndSendToUser(principal.getName(), "/topic/greetings", greeting);
+        jmsTemplate.convertAndSend("mailbox", new Message(principal.getName(), "body cont"));
+
         return "ok";
     }
 
