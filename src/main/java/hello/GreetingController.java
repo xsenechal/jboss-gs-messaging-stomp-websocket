@@ -23,7 +23,7 @@ public class GreetingController {
     private JmsTemplate jmsTemplate;
 
     @MessageMapping("/hello")
-    @SendTo("/user/topic/greetings")
+    @SendTo("/topic/greetings")
     public Greeting greeting(HelloMessage message) throws Exception {
         Thread.sleep(500); // simulated delay
         return new Greeting("Hello, " + HtmlUtils.htmlEscape(message.getName()) + "!");
@@ -34,7 +34,8 @@ public class GreetingController {
     public String print(@PathVariable("name") String name, Principal principal){
         Greeting greeting = new Greeting("Hello, " + HtmlUtils.htmlEscape(name) + "!");
         //template.convertAndSendToUser(principal.getName(), "/topic/greetings", greeting);
-        jmsTemplate.convertAndSend("mailbox", new Message(principal.getName(), "body cont"));
+        jmsTemplate.setPubSubDomain(true);
+        jmsTemplate.convertAndSend("mailbox", new Message(principal.getName(), name));
 
         return "ok";
     }

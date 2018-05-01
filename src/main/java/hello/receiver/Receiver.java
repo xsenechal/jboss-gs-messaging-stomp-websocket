@@ -8,6 +8,8 @@ import org.springframework.jms.annotation.JmsListener;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
+import java.util.Date;
+
 @Component
 public class Receiver {
 
@@ -19,7 +21,7 @@ public class Receiver {
     public void receiveMessage(Message message) {
         System.out.println("Received <" + message + ">");
         template.convertAndSendToUser(message.getUser(), "/topic/greetings",
-                new Greeting(message.getUser() +  " - " + message.getBody()));
+                new Greeting(message.getUser() +  " - " + message.getBody()+  " - " + new Date()));
     }
 
 }
