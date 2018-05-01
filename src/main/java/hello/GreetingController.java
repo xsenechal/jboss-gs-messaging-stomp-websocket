@@ -35,8 +35,15 @@ public class GreetingController {
         Greeting greeting = new Greeting("Hello, " + HtmlUtils.htmlEscape(name) + "!");
         //template.convertAndSendToUser(principal.getName(), "/topic/greetings", greeting);
         jmsTemplate.setPubSubDomain(true);
-        jmsTemplate.convertAndSend("mailbox", new Message(principal.getName(), name));
+        jmsTemplate.convertAndSend("mailbox", new Message(principal.getName(), name), m -> {
 
+            // https://memorynotfound.com/spring-jms-setting-reading-header-properties-example/
+            m.setStringProperty("xav-user", principal.getName());
+            m.setStringProperty("xav-printer-id", name);
+
+
+            return m;
+        });
         return "ok";
     }
 
